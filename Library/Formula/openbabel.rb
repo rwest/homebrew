@@ -2,6 +2,13 @@ require 'formula'
 # Use the head (i.e. do 'brew upgrade openbabel --HEAD')
 
 
+def which_python
+  "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
+end
+def site_package_dir
+  "#{lib}/#{which_python}/site-packages"
+end
+
 class Openbabel < Formula
   url 'http://sourceforge.net/projects/openbabel/files/openbabel/2.3.1/openbabel-2.3.1.tar.gz'
   homepage 'http://openbabel.org'
@@ -25,6 +32,7 @@ class Openbabel < Formula
     args = std_cmake_parameters.split
     args << "-DRUN_SWIG=TRUE"
     args << "-DPYTHON_BINDINGS=ON"
+    args << "-DPYTHON_PREFIX='#{prefix}'"
     args << "-DEIGEN3_INCLUDE_DIR='#{HOMEBREW_PREFIX}/include/eigen3'"
     
     Dir.mkdir 'build'
