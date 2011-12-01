@@ -1,13 +1,16 @@
 require 'formula'
+# Use the head (i.e. do 'brew upgrade openbabel --HEAD')
+
 
 class Openbabel < Formula
   url 'http://sourceforge.net/projects/openbabel/files/openbabel/2.3.1/openbabel-2.3.1.tar.gz'
   homepage 'http://openbabel.org'
   md5 '1f029b0add12a3b55582dc2c832b04f8'
+  head 'https://openbabel.svn.sourceforge.net/svnroot/openbabel/openbabel/trunk'
 
   depends_on 'cmake' => :build
- # depends_on 'swig' => :build
-  depends_on 'eigen2'
+  depends_on 'swig' => :build
+  depends_on 'eigen'
  # depends_on 'zlib'
   depends_on 'libxml2' # required for CML
   
@@ -18,9 +21,18 @@ class Openbabel < Formula
   def install
   #  system "./configure", # "--disable-debug", "--disable-dependency-tracking",
   #                        "--prefix=#{prefix}", "--enable-maintainer-mode"
-    system "cmake . #{std_cmake_parameters}", "-DPYTHON_BINDINGS=ON", "-DEIGEN2_INCLUDE_DIR='#{HOMEBREW_PREFIX}/include/eigen2'"
-    system "make"
-    system "make install"
+
+    args = std_cmake_parameters.split
+    args << "-DRUN_SWIG=TRUE"
+    args << "-DPYTHON_BINDINGS=ON"
+    args << "-DEIGEN3_INCLUDE_DIR='#{HOMEBREW_PREFIX}/include/eigen3'"
+    
+    Dir.mkdir 'build'
+    Dir.chdir 'build' do
+      system 'cmake', '..', *args
+      system 'make install'
+    end
+    
   end
 
   def test
@@ -29,6 +41,8 @@ class Openbabel < Formula
     # it'd be nice if you were more thorough. Test the test with
     # `brew test openbabel`. Remove this comment before submitting
     # your pull request!
-    system "make test"
+    Dir.chdir 'build' do
+      system "make test"
+    end
   end
 end
