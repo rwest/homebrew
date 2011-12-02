@@ -69,6 +69,10 @@ class Openbabel < Formula
       system 'make install'
     end
     
+    # move the python bindings into the right place
+    (lib + which_python + 'site-packages').mkpath
+    mv ([lib+'_openbabel.so', lib+'openbabel.py', lib+'pybel.py',]), (lib + which_python + 'site-packages')
+
   end
 
   def test
